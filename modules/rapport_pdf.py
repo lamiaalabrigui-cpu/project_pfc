@@ -313,33 +313,32 @@ class RapportPDF(FPDF):
         self.add_page()
         self.titre_chapitre(6, "Dimensionnement technique indicatif")
 
-        panneaux = dimensionnement.get("panneaux", {})
+        general = dimensionnement.get("general", {})
         self.sous_titre("Champ photovoltaique")
         self.tableau_2col({
-            "Nombre panneaux": panneaux.get("nombre_panneaux", "N/A"),
-            "Puissance unitaire": f"{panneaux.get('puissance_unitaire_w', 0)} Wc",
-            "Puissance reelle": f"{panneaux.get('puissance_crete_reelle_kwc', 0)} kWc",
-            "Surface panneaux": f"{panneaux.get('surface_panneaux_m2', 0)} m2",
-            "Configuration": panneaux.get("configuration", {}).get("connexion", "N/A"),
+            "Nombre panneaux": general.get("nombre_modules", "N/A"),
+            "Puissance reelle": f"{general.get('puissance_reelle_kwc', 0)} kWc",
+            "Surface panneaux": f"{general.get('surface_panneaux_m2', 0)} m2",
+            "U_sys recommande": f"{general.get('u_sys_recommande_v', 0)} V",
         })
 
-        onduleur = dimensionnement.get("onduleur", {})
+        compat = dimensionnement.get("compatibilite_onduleur", {})
         self.sous_titre("Onduleur")
         self.tableau_2col({
-            "Puissance nominale": f"{onduleur.get('puissance_nominale_kw', 0)} kW",
-            "Type": onduleur.get("type", "N/A"),
-            "Phases": onduleur.get("phases", "N/A"),
-            "Ratio DC/AC": onduleur.get("ratio_dc_ac", "N/A"),
+            "Puissance OK 80-110%": "Oui" if compat.get("puissance_ok_80_110") else "Non",
+            "Chaines requises": compat.get("chaines_requises", "N/A"),
+            "Ns min/max": f"{compat.get('ns_min', '?')} / {compat.get('ns_max', '?')}",
+            "Compatible global": "Oui" if compat.get("compatible_global") else "Non",
         })
 
         batteries = dimensionnement.get("batteries")
         if batteries:
             self.sous_titre("Stockage")
             self.tableau_2col({
-                "Technologie": batteries.get("technologie", "N/A"),
-                "Capacite totale": f"{batteries.get('capacite', {}).get('totale_kwh', 0)} kWh",
-                "Capacite utile": f"{batteries.get('capacite', {}).get('utile_kwh', 0)} kWh",
                 "Autonomie": f"{batteries.get('autonomie_jours', 0)} jours",
+                "Capacite installee": f"{batteries.get('capacite_installee_kwh', 0)} kWh",
+                "Capacite requise": f"{batteries.get('capacite_requise_ah', 0)} Ah",
+                "Nombre total": batteries.get("nombre_total_batteries", 0),
             })
 
         self.alerte(

@@ -87,11 +87,18 @@ class AnalyseEconomiqueAvancee:
         if "Consommation_kWh" not in self.consommation.columns:
             raise ValueError("profil_consommation doit contenir Consommation_kWh.")
 
-        if len(self.production) < 8760 or len(self.consommation) < 8760:
-            raise ValueError("production et consommation doivent contenir au moins 8760 lignes.")
+        self.production = self._pad_to_8760(self.production, "Production_kWh")
+        self.consommation = self._pad_to_8760(self.consommation, "Consommation_kWh")
 
-        self.production = self.production.iloc[:8760].reset_index(drop=True)
-        self.consommation = self.consommation.iloc[:8760].reset_index(drop=True)
+    @staticmethod
+    def _pad_to_8760(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
+        if len(df) >= 8760:
+            return df.iloc[:8760].reset_index(drop=True)
+        n_missing = 8760 - len(df)
+        last_dt = pd.to_datetime(df["DateTime"].iloc[-1])
+        new_dts = pd.date_range(start=last_dt + pd.Timedelta(hours=1), periods=n_missing, freq="h")
+        pad = pd.DataFrame({"DateTime": new_dts, value_col: 0.0})
+        return pd.concat([df, pad], ignore_index=True)
 
     def _calculer_flux_energetiques_an1(self):
         prod = self.production["Production_kWh"].to_numpy(dtype=float)

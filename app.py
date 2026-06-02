@@ -55,6 +55,16 @@ def kpi(label, value, help_text=None):
     st.metric(label, value, help=help_text)
 
 
+def _pad_profile(df, value_col, n=8760):
+    raw = df[value_col].to_numpy(float)
+    if len(raw) >= n:
+        return df.iloc[:n].reset_index(drop=True)
+    n_missing = n - len(raw)
+    last_dt = pd.to_datetime(df["DateTime"].iloc[-1])
+    new_dts = pd.date_range(start=last_dt + pd.Timedelta(hours=1), periods=n_missing, freq="h")
+    pad = pd.DataFrame({"DateTime": new_dts, value_col: 0.0})
+    return pd.concat([df, pad], ignore_index=True)
+
 def ensure_state():
     defaults = {
         "show_tool": False,
@@ -136,7 +146,11 @@ def build_inventory(type_batiment: str):
 
 
 def optimize_power(tmy, config, conso, type_contrat, type_systeme, pc_min, pc_max, n_tests):
-    conso_values = conso["Consommation_kWh"].to_numpy(float)[:8760]
+    n_hours = 8760
+    raw = conso["Consommation_kWh"].to_numpy(float)
+    if len(raw) < n_hours:
+        raw = np.pad(raw, (0, n_hours - len(raw)), constant_values=0)
+    conso_values = raw[:n_hours]
     conso_total = float(conso_values.sum())
     rows = []
     for pc in np.linspace(pc_min, pc_max, int(n_tests)):
@@ -329,7 +343,7 @@ with tabs[2]:
             if file:
                 path = save_uploaded_file(file)
                 conso, diag = manager.charger_historique(path)
-                st.session_state.consommation = conso
+                st.session_state.consommation = _pad_profile(conso, "Consommation_kWh")
                 st.session_state.diagnostic = diag
                 st.session_state.donnees_reseau = manager.donnees_reseau_horaire
                 st.success("Historique charge et converti en profil horaire.")
@@ -337,7 +351,7 @@ with tabs[2]:
             equipements = build_inventory(type_batiment)
             if st.button("Calculer la consommation depuis l'inventaire"):
                 conso = manager.creer_depuis_equipements(equipements, annee=2025)
-                st.session_state.consommation = conso
+                st.session_state.consommation = _pad_profile(conso, "Consommation_kWh")
                 st.session_state.diagnostic = manager.get_statistiques().get("diagnostic", {})
                 st.session_state.donnees_reseau = None
                 st.success("Profil horaire genere depuis l'inventaire.")
@@ -404,8 +418,12 @@ with tabs[4]:
         production = calc.calculer_production_annuelle()
         st.session_state.production = production
         st.session_state.pv_summary = calc.get_summary()
-        prod = production["Production_kWh"].to_numpy(float)[:8760]
-        load = conso["Consommation_kWh"].to_numpy(float)[:8760]
+        n_hours = 8760
+        prod = production["Production_kWh"].to_numpy(float)[:n_hours]
+        raw_load = conso["Consommation_kWh"].to_numpy(float)
+        if len(raw_load) < n_hours:
+            raw_load = np.pad(raw_load, (0, n_hours - len(raw_load)), constant_values=0)
+        load = raw_load[:n_hours]
         autoconso = np.minimum(prod, load)
         surplus = np.maximum(0, prod - load)
         injection_allowed = type_contrat != "bt_residentiel" and type_systeme != "off-grid"
