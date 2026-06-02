@@ -28,7 +28,63 @@ from modules.pv_design_advanced import (
     parse_component_file,
 )
 
-st.set_page_config(page_title="Opti-Solar Maroc", page_icon="Solar", layout="wide")
+st.set_page_config(page_title="Opti-Solar Maroc", page_icon="☀️", layout="wide")
+
+st.markdown("""
+<style>
+#MainMenu, footer, header {visibility: hidden;}
+.stApp > header {height:0;}
+
+/* -- Global -- */
+.stApp {background: #f6fbf9;}
+.block-container {max-width: 1200px; padding: 1.5rem 2rem;}
+
+/* -- Typography -- */
+h1, h2, h3, h4, h5 {color: #0d3b1e;}
+p, li, .stMarkdown {color: #2d4a3a;}
+
+/* -- Tabs -- */
+.stTabs [data-baseweb="tab-list"] {gap:3px; background:transparent;}
+.stTabs [data-baseweb="tab"] {
+    border-radius: 8px 8px 0 0; padding: 8px 18px; font-weight: 500;
+    font-size: 0.82rem; background: #e8f5ee; color:#1a5c34; margin-right:3px;
+    transition: all 0.2s; border-bottom: 2px solid transparent;
+}
+.stTabs [aria-selected="true"] {background: #1a5c34; color: white !important;}
+
+/* -- Cards & Metrics -- */
+.stMetric {
+    background: white; border-radius: 12px; padding: 14px 18px;
+    border-left: 4px solid #22c55e; box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+.stMetric label {font-size: 0.72rem !important; color: #3a6b4e !important; font-weight: 600 !important; text-transform: uppercase; letter-spacing:0.3px;}
+.stMetric [data-testid="stMetricValue"] {font-weight: 700; color: #0d3b1e;}
+
+div[data-testid="stDataFrame"] {border: 1px solid #d4e6db; border-radius: 10px; overflow: hidden;}
+.stAlert {border-radius: 10px; border-left-width: 5px;}
+
+/* -- Buttons -- */
+.stButton button {
+    border-radius: 10px; font-weight: 600; transition: all 0.25s;
+    border: 1.5px solid #22c55e; background: white; color: #1a5c34;
+    padding: 0.4rem 1.2rem; font-size: 0.85rem;
+}
+.stButton button:hover {background: #22c55e; color: white; border-color: #22c55e; box-shadow: 0 2px 8px rgba(34,197,94,0.3);}
+
+/* -- Expanders & widgets -- */
+.stExpander {border: 1px solid #d4e6db; border-radius: 10px; margin-bottom: 6px; background: white;}
+.stRadio [data-testid="stMarkdownContainer"] {font-weight: 500;}
+.stSelectbox, .stNumberInput, .stTextInput {background: white; border-radius: 8px;}
+.stTextInput input, .stNumberInput input {border-radius: 8px;}
+
+/* -- Info/Success/Warning boxes -- */
+div[data-testid="stAlert"] {border-radius: 10px;}
+.element-container .stAlert {border-left-width: 5px;}
+
+/* -- Side decorations -- */
+hr {border-color: #d4e6db; margin: 1rem 0;}
+</style>
+""", unsafe_allow_html=True)
 
 
 # ==============================================================================
@@ -247,28 +303,44 @@ def dict_to_table(title, data):
 
 ensure_state()
 
-h1, h2, h3 = st.columns([1, 3, 1])
-with h1:
-    st.markdown("### OPTI\n### SOLAR")
-with h2:
-    st.title("Opti-Solar Maroc")
-    st.write("Plateforme interactive d'analyse de consommation, dimensionnement PV, audit ISO 50001, CAPEX, rentabilite et rapport PDF.")
-with h3:
-    if st.button("Lancer l'outil", use_container_width=True):
+st.markdown("""
+<div style="display:flex;align-items:center;gap:20px;padding:12px 0 10px 0;border-bottom:2px solid #22c55e;margin-bottom:14px;">
+    <div style="background:linear-gradient(135deg,#1a5c34,#22c55e);color:white;font-weight:800;font-size:1rem;padding:10px 16px;border-radius:10px;line-height:1.3;text-align:center;min-width:76px;box-shadow:0 2px 8px rgba(34,197,94,0.25);">
+        OPTI<br>SOLAR
+    </div>
+    <div style="flex:1;">
+        <div style="font-size:1.7rem;font-weight:700;color:#0d3b1e;line-height:1.1;letter-spacing:-0.3px;">Opti-Solar Maroc</div>
+        <div style="font-size:0.82rem;color:#3a6b4e;margin-top:2px;">Plateforme interactive d'analyse de consommation, dimensionnement PV, audit ISO 50001, CAPEX, rentabilite et rapport PDF.</div>
+    </div>
+    <div style="font-size:2.8rem;opacity:0.15;">☀️</div>
+</div>
+""", unsafe_allow_html=True)
+
+c1, c2 = st.columns([1, 1])
+with c1:
+    if st.button("🚀 Lancer l'outil", use_container_width=True):
         st.session_state.show_tool = True
-    if st.button("Afficher le processus d'analyse", use_container_width=True):
+with c2:
+    if st.button("📊 Processus d'analyse", use_container_width=True):
         st.session_state.show_process = not st.session_state.show_process
 
 if st.session_state.show_process:
+    st.markdown("""
+    <div style="background:white;border-radius:12px;padding:20px;margin:10px 0 14px 0;border:1px solid #d4e6db;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+        <h4 style="margin:0 0 10px 0;color:#0d3b1e;font-size:0.95rem;">Processus d'analyse</h4>
+    """, unsafe_allow_html=True)
     st.graphviz_chart('''
     digraph G {
-      rankdir=LR;
+      rankdir=LR; splines=ortho; bgcolor="transparent";
+      node [shape=box,style=filled,rounded,fillcolor="#1a5c34",fontcolor=white,fontname=Helvetica,fontsize=9,height=0.3];
+      edge [color="#22c55e",penwidth=1.5];
       Projet -> TMY -> Consommation -> AnalyseConso -> OptimisationPV -> Dimensionnement -> CAPEX -> Economie -> Recommandations -> RapportPDF;
-      Consommation -> QualiteDonnees;
-      AnalyseConso -> Recommandations;
-      Dimensionnement -> Protections;
+      Consommation -> QualiteDonnees [color="#94c9a9"];
+      AnalyseConso -> Recommandations [color="#94c9a9"];
+      Dimensionnement -> Protections [color="#94c9a9"];
     }
     ''')
+    st.markdown("</div>", unsafe_allow_html=True)
 
 if not st.session_state.show_tool:
     st.info("Cliquez sur 'Lancer l'outil' pour commencer la configuration du projet.")
@@ -276,8 +348,11 @@ if not st.session_state.show_tool:
 
 base_config = ConfigurationManager().to_dict()
 
-st.markdown("---")
-st.subheader("Donnees initiales du projet")
+st.markdown("""
+<div style="background:white;border-radius:12px;padding:16px 20px;margin:14px 0 12px 0;border:1px solid #d4e6db;box-shadow:0 1px 4px rgba(0,0,0,0.04);">
+    <div style="font-weight:600;color:#0d3b1e;margin-bottom:10px;font-size:0.9rem;">📋 Donnees initiales du projet</div>
+</div>
+""", unsafe_allow_html=True)
 p1, p2, p3, p4, p5 = st.columns([2, 1, 1, 1, 1])
 project_name = p1.text_input("Nom du projet", st.session_state.project_name)
 ville = p2.selectbox("Ville", list(VILLES_MAROC.keys()), index=list(VILLES_MAROC.keys()).index(st.session_state.ville) if st.session_state.ville in VILLES_MAROC else 0)
@@ -305,9 +380,22 @@ tabs = st.tabs([
 # 1 OVERVIEW
 # ------------------------------------------------------------------------------
 with tabs[0]:
-    st.subheader("Vue generale")
-    st.write("Avancement recommande: chargez les donnees TMY, importez ou saisissez la consommation, optimisez la puissance PV, dimensionnez les composants, puis genereez le rapport.")
-    st.info("Les fichiers d'exemple ne sont pas inclus dans l'interface. Utilisez-les seulement via l'import CSV/Excel pour tester l'application.")
+    st.markdown("""
+    <div style="background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:14px;padding:28px 30px;border-left:5px solid #22c55e;margin-bottom:20px;">
+        <h3 style="margin:0 0 10px 0;color:#0d3b1e;font-size:1.2rem;">🌱 Bienvenue sur Opti-Solar Maroc</h3>
+        <p style="margin:0 0 6px 0;color:#2d4a3a;font-size:0.9rem;line-height:1.6;">
+            <strong>Processus recommande :</strong><br>
+            1. ☀️ <strong>Donnees solaires TMY</strong> → chargez les donnees meteotypiques du site<br>
+            2. 📥 <strong>Consommation</strong> → importez un historique CSV ou saisissez vos equipements<br>
+            3. ⚡ <strong>Production PV & bilan</strong> → optimisez la puissance crete<br>
+            4. 🧰 <strong>Dimensionnement</strong> → panneaux, onduleur, batteries, protections<br>
+            5. 💰 <strong>Analyse economique</strong> → CAPEX, VAN, TRI, LCOE, payback<br>
+            6. 💡 <strong>Recommandations</strong> → ISO 50001 et efficacite energetique<br>
+            7. 📄 <strong>Rapport PDF</strong> → exportez le rapport de pre-faisabilite
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    st.info("Les fichiers d'exemple sont disponibles dans le dossier <code>data_examples/</code> pour tester l'application via l'import CSV/Excel.")
 
 # ------------------------------------------------------------------------------
 # 2 TMY
