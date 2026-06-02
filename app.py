@@ -143,24 +143,22 @@ def optimize_power(tmy, config, conso, type_contrat, type_systeme, pc_min, pc_ma
         calc = PVCalculatorAdvanced(tmy, config, float(pc))
         prod_df = calc.calculer_production_annuelle()
         prod = prod_df["Production_kWh"].to_numpy(float)[:8760]
-    # Ajuster la taille de la consommation (24h) m3a l-production (8760h)
-autoconso = np.minimum(prod, conso_values)   
- # Calcul de l'autoconsommation m3a l-profil jdid
-autoconso = np.minimum(prod, conso_ajustee)
-prod_total = float(prod.sum())
-auto_total = float(autoconso.sum())
-surplus_total = float(surplus.sum())
-taux_auto = auto_total / prod_total if prod_total else 0
-taux_autoprod = auto_total / conso_total if conso_total else 0
-taux_surplus = surplus_total / prod_total if prod_total else 0
-bt_or_offgrid = type_contrat == "bt_residentiel" or type_systeme == "off-grid"
-injection_rem = 0 if bt_or_offgrid else min(surplus_total, 0.20 * prod_total)
-economie = auto_total * 1.10 + injection_rem * 0.18
-capex = pc * (14000 if type_systeme == "off-grid" else 12000 if type_systeme == "hybride" else 8000)
-payback = capex / economie if economie > 0 else 999
-penalty = taux_surplus * (100 if bt_or_offgrid else 60 if taux_surplus > 0.20 else 10)
-score = 45 * taux_autoprod + 35 * taux_auto + max(0, 20 - payback) - penalty
-rows.append({
+        autoconso = np.minimum(prod, conso_values)
+        surplus = np.maximum(0, prod - conso_values)
+        prod_total = float(prod.sum())
+        auto_total = float(autoconso.sum())
+        surplus_total = float(surplus.sum())
+        taux_auto = auto_total / prod_total if prod_total else 0
+        taux_autoprod = auto_total / conso_total if conso_total else 0
+        taux_surplus = surplus_total / prod_total if prod_total else 0
+        bt_or_offgrid = type_contrat == "bt_residentiel" or type_systeme == "off-grid"
+        injection_rem = 0 if bt_or_offgrid else min(surplus_total, 0.20 * prod_total)
+        economie = auto_total * 1.10 + injection_rem * 0.18
+        capex = pc * (14000 if type_systeme == "off-grid" else 12000 if type_systeme == "hybride" else 8000)
+        payback = capex / economie if economie > 0 else 999
+        penalty = taux_surplus * (100 if bt_or_offgrid else 60 if taux_surplus > 0.20 else 10)
+        score = 45 * taux_autoprod + 35 * taux_auto + max(0, 20 - payback) - penalty
+        rows.append({
             "Puissance_kWc": round(float(pc), 2),
             "Production_kWh": round(prod_total, 0),
             "Autoconso_kWh": round(auto_total, 0),

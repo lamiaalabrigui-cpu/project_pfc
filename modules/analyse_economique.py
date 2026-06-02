@@ -299,7 +299,6 @@ class AnalyseEconomiqueAvancee:
             return None
 
         try:
-            import numpy_financial as npf
             tri = npf.irr(flux)
             if tri is None or np.isnan(tri):
                 return None
