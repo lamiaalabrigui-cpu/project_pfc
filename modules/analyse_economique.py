@@ -242,9 +242,11 @@ class AnalyseEconomiqueAvancee:
         if self.config.get("batterie") and self.type_contrat:
             duree_batt = self.config["batterie"].get("cycles_vie_80dod", 8000) / 365
             annee_batt = int(round(duree_batt))
-            if annee == annee_batt and self.inclure_revenu_injection is False:
-                # Ne pas forcer dans tous les cas; valeur indicative faible.
-                cout += 0.0
+            if annee == annee_batt:
+                prix_kwh = self.config["batterie"].get("prix_par_kwh_mad", 3500.0)
+                prix_bms = self.config["batterie"].get("prix_bms_mad", 5000.0)
+                cout_batt_estime = self.capex * 0.15
+                cout += max(cout_batt_estime, prix_bms)
 
         return cout
 

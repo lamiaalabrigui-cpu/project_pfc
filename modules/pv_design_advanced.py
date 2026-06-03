@@ -691,8 +691,8 @@ def default_capex_rows(design: Dict[str, Any], panel: PanelTech, inverter: Inver
     rows = [
         ["Modules PV", "u", g["nombre_modules"], panel.prix_unitaire],
         ["Onduleur", "u", 1, inverter.prix_unitaire],
-        [f"Cable solaire DC {c['section_dc_standard_mm2']} mm2", "m", 60, {4:14, 6:18, 10:30, 16:40}.get(c["section_dc_standard_mm2"], 35)],
-        [f"Cable AC {c['section_ac_standard_mm2']} mm2", "m", 40, {4:14, 6:18, 10:30, 16:40}.get(c["section_ac_standard_mm2"], 35)],
+        [f"Cable solaire DC {c['section_dc_standard_mm2']} mm2", "m", 60, {1.5:5, 2.5:8, 4:14, 6:18, 10:30, 16:40, 25:55, 35:75, 50:110, 70:160, 95:220, 120:300, 150:400, 185:520, 240:700}.get(c["section_dc_standard_mm2"], 35)],
+        [f"Cable AC {c['section_ac_standard_mm2']} mm2", "m", 40, {1.5:4, 2.5:7, 4:12, 6:15, 10:25, 16:35, 25:50, 35:65, 50:95, 70:140, 95:190, 120:260, 150:350, 185:450, 240:600}.get(c["section_ac_standard_mm2"], 35)],
         ["Fusibles DC gPV", "u", max(1, design["compatibilite_onduleur"]["chaines_requises"]), 150],
         ["Sectionneur DC", "u", 1, 1200],
         ["Parafoudre DC", "u", 1, 800],
