@@ -147,18 +147,18 @@ def ensure_state():
         "bilan_eco": {},
         "recommandations": {},
         "panel_specs": {
-            "wc": 550.0, "prix_unitaire": 0.0, "impp": 13.16, "umpp": 41.8,
+            "wc": 550.0, "prix_unitaire": 1200.0, "impp": 13.16, "umpp": 41.8,
             "icc": 13.95, "uco": 49.5, "irm": 25.0, "degradation_annuelle": 0.005,
             "surface_m2": 2.61,
         },
         "inverter_specs": {
-            "puissance_nominale_kw": 10.0, "prix_unitaire": 0.0, "imax": 30.0,
+            "puissance_nominale_kw": 10.0, "prix_unitaire": 25000.0, "imax": 30.0,
             "umppt_max": 850.0, "umppt_min": 200.0, "tension_ac_v": 400.0,
             "uw": 1000.0, "phases": 3,
         },
         "battery_specs": {
             "capacite_ah": 200.0, "tension_v": 48.0, "dod_max": 0.80,
-            "prix_unitaire": 0.0,
+            "prix_unitaire": 3500.0,
         },
         "last_panel_file": None,
         "last_inverter_file": None,
@@ -659,7 +659,9 @@ with tabs[5]:
         st.markdown("#### Panneau PV")
         c = st.columns(4)
         p_specs["wc"] = c[0].number_input("Puissance panneau a utiliser Wc", 1.0, 1000.0, float(selected_panel_power), key="panel_wc")
-        p_specs["prix_unitaire"] = c[1].number_input("Prix panneau HT a saisir", 0.0, 100000.0, bounded_default(p_specs, "prix_unitaire", 0.0, 0.0, 100000.0), key="panel_price")
+        p_specs["prix_unitaire"] = c[1].number_input("Prix panneau HT a saisir", 0.0, 100000.0, bounded_default(p_specs, "prix_unitaire", 1200.0, 0.0, 100000.0), key="panel_price")
+        if p_specs["prix_unitaire"] == 0.0:
+            st.warning("⚠️ Prix panneau = 0 MAD - saisissez le prix reel pour obtenir un VAN/TRI fiable.")
         p_specs["impp"] = c[2].number_input("Impp", 0.1, 100.0, bounded_default(p_specs, "impp", 13.16, 0.1, 100.0), key="panel_impp")
         p_specs["umpp"] = c[3].number_input("Umpp", 1.0, 200.0, bounded_default(p_specs, "umpp", 41.8, 1.0, 200.0), key="panel_umpp")
         p_specs["icc"] = st.number_input("Icc", 0.1, 100.0, bounded_default(p_specs, "icc", 13.95, 0.1, 100.0), key="panel_icc")
@@ -685,7 +687,7 @@ with tabs[5]:
                 st.session_state.last_inverter_target = selected_inverter_power
         c = st.columns(4)
         i_specs["puissance_nominale_kw"] = c[0].number_input("Puissance nominale onduleur kW a verifier", 0.1, 1000.0, bounded_default(i_specs, "puissance_nominale_kw", selected_pc / 1.2, 0.1, 1000.0), key="inv_pnom")
-        i_specs["prix_unitaire"] = c[1].number_input("Prix onduleur HT a saisir", 0.0, 1000000.0, bounded_default(i_specs, "prix_unitaire", 0.0, 0.0, 1000000.0), key="inv_price")
+        i_specs["prix_unitaire"] = c[1].number_input("Prix onduleur HT a saisir", 0.0, 1000000.0, bounded_default(i_specs, "prix_unitaire", 25000.0, 0.0, 1000000.0), key="inv_price")
         if i_specs["prix_unitaire"] == 0.0:
             st.warning("⚠️ Prix onduleur = 0 MAD - saisissez le prix reel pour obtenir un VAN/TRI fiable.")
         i_specs["umppt_max"] = c[3].number_input("Umppt max", 1.0, 2000.0, bounded_default(i_specs, "umppt_max", 850.0, 1.0, 2000.0), key="inv_umax")
@@ -704,7 +706,7 @@ with tabs[5]:
             b_specs["capacite_ah"] = st.number_input("C_batt Ah", 1.0, 10000.0, bounded_default(b_specs, "capacite_ah", 200.0, 1.0, 10000.0), key="batt_cap")
             b_specs["tension_v"] = st.number_input("U_batt V", 1.0, 1000.0, bounded_default(b_specs, "tension_v", 48.0, 1.0, 1000.0), key="batt_u")
             b_specs["dod_max"] = st.number_input("D DoD max", 0.1, 0.95, bounded_default(b_specs, "dod_max", 0.80, 0.1, 0.95), 0.05, key="batt_dod")
-            b_specs["prix_unitaire"] = st.number_input("Prix batterie HT a saisir", 0.0, 100000.0, bounded_default(b_specs, "prix_unitaire", 0.0, 0.0, 100000.0), key="batt_price")
+            b_specs["prix_unitaire"] = st.number_input("Prix batterie HT a saisir", 0.0, 100000.0, bounded_default(b_specs, "prix_unitaire", 3500.0, 0.0, 100000.0), key="batt_price")
             battery = BatteryTech(**b_specs)
 
         st.markdown("#### Cables et protections")
