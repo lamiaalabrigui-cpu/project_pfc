@@ -92,13 +92,14 @@ class AnalyseEconomiqueAvancee:
 
     @staticmethod
     def _pad_to_8760(df: pd.DataFrame, value_col: str) -> pd.DataFrame:
-        if len(df) >= 8760:
+        raw = df[value_col].to_numpy(dtype=float)
+        if len(raw) >= 8760:
             return df.iloc[:8760].reset_index(drop=True)
-        n_missing = 8760 - len(df)
-        last_dt = pd.to_datetime(df["DateTime"].iloc[-1])
-        new_dts = pd.date_range(start=last_dt + pd.Timedelta(hours=1), periods=n_missing, freq="h")
-        pad = pd.DataFrame({"DateTime": new_dts, value_col: 0.0})
-        return pd.concat([df, pad], ignore_index=True)
+        repeats = int(np.ceil(8760 / len(raw)))
+        repeated_vals = np.tile(raw, repeats)[:8760]
+        start = pd.Timestamp(f"{pd.to_datetime(df['DateTime'].iloc[0]).year}-01-01 00:00:00")
+        new_dts = pd.date_range(start=start, periods=8760, freq="h")
+        return pd.DataFrame({"DateTime": new_dts, value_col: repeated_vals})
 
     def _calculer_flux_energetiques_an1(self):
         prod = self.production["Production_kWh"].to_numpy(dtype=float)

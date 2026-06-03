@@ -115,11 +115,15 @@ def _pad_profile(df, value_col, n=8760):
     raw = df[value_col].to_numpy(float)
     if len(raw) >= n:
         return df.iloc[:n].reset_index(drop=True)
-    n_missing = n - len(raw)
-    last_dt = pd.to_datetime(df["DateTime"].iloc[-1])
-    new_dts = pd.date_range(start=last_dt + pd.Timedelta(hours=1), periods=n_missing, freq="h")
-    pad = pd.DataFrame({"DateTime": new_dts, value_col: 0.0})
-    return pd.concat([df, pad], ignore_index=True)
+    repeats = int(np.ceil(n / len(raw)))
+    repeated_vals = np.tile(raw, repeats)[:n]
+    base_dt = pd.to_datetime(df["DateTime"].iloc[0])
+    if base_dt.month == 1 and base_dt.day == 1:
+        start = base_dt
+    else:
+        start = pd.Timestamp(f"{base_dt.year}-01-01 00:00:00")
+    new_dts = pd.date_range(start=start, periods=n, freq="h")
+    return pd.DataFrame({"DateTime": new_dts, value_col: repeated_vals})
 
 def ensure_state():
     defaults = {
@@ -440,7 +444,7 @@ with tabs[2]:
                     st.warning(
                         f"⚠️ Fichier contient seulement {nb_jours:.0f} jour(s) de données. "
                         "Un minimum de 30 jours est recommandé pour un dimensionnement fiable. "
-                        "Le profil sera extrapolé sur l'année avec des zéros — les résultats "
+                        "Le profil sera répété cycliquement sur l'année — les résultats "
                         "d'autoconsommation et de rentabilité seront approximatifs."
                     )
         else:
