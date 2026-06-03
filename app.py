@@ -435,6 +435,14 @@ with tabs[2]:
                 st.session_state.diagnostic = diag
                 st.session_state.donnees_reseau = manager.donnees_reseau_horaire
                 st.success("Historique charge et converti en profil horaire.")
+                nb_jours = diag["nombre_lignes_horaires"] / 24
+                if nb_jours < 30:
+                    st.warning(
+                        f"⚠️ Fichier contient seulement {nb_jours:.0f} jour(s) de données. "
+                        "Un minimum de 30 jours est recommandé pour un dimensionnement fiable. "
+                        "Le profil sera extrapolé sur l'année avec des zéros — les résultats "
+                        "d'autoconsommation et de rentabilité seront approximatifs."
+                    )
         else:
             equipements = build_inventory(type_batiment)
             if st.button("Calculer la consommation depuis l'inventaire"):
@@ -674,7 +682,8 @@ with tabs[5]:
         c = st.columns(4)
         i_specs["puissance_nominale_kw"] = c[0].number_input("Puissance nominale onduleur kW a verifier", 0.1, 1000.0, bounded_default(i_specs, "puissance_nominale_kw", selected_pc / 1.2, 0.1, 1000.0), key="inv_pnom")
         i_specs["prix_unitaire"] = c[1].number_input("Prix onduleur HT a saisir", 0.0, 1000000.0, bounded_default(i_specs, "prix_unitaire", 0.0, 0.0, 1000000.0), key="inv_price")
-        i_specs["imax"] = c[2].number_input("Imax", 0.1, 1000.0, bounded_default(i_specs, "imax", 30.0, 0.1, 1000.0), key="inv_imax")
+        if i_specs["prix_unitaire"] == 0.0:
+            st.warning("⚠️ Prix onduleur = 0 MAD — saisissez le prix réel pour obtenir un VAN/TRI fiable.")        i_specs["imax"] = c[2].number_input("Imax", 0.1, 1000.0, bounded_default(i_specs, "imax", 30.0, 0.1, 1000.0), key="inv_imax")
         i_specs["umppt_max"] = c[3].number_input("Umppt max", 1.0, 2000.0, bounded_default(i_specs, "umppt_max", 850.0, 1.0, 2000.0), key="inv_umax")
         i_specs["umppt_min"] = st.number_input("Umppt min", 1.0, 2000.0, bounded_default(i_specs, "umppt_min", 200.0, 1.0, 2000.0), key="inv_umin")
         i_specs["tension_ac_v"] = st.number_input("Tension AC V", 120.0, 1000.0, bounded_default(i_specs, "tension_ac_v", 400.0, 120.0, 1000.0), key="inv_vac")

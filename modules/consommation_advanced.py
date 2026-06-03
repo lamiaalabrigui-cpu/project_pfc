@@ -47,7 +47,7 @@ COLUMN_ALIASES = {
     ],
     "energy_import_kwh": [
         "energie import kwh", "energie importee kwh", "energie active importee",
-        "energie active importee kwh", "energie active plus", "energie active",
+        "energie active importee kwh", "energie active plus",  # ← REMOVE "energie active" alone
         "active energy import", "import energy", "import kwh", "kwh import",
         "energie kwh", "consommation kwh", "conso kwh", "energie active kwh",
         "energie active plus kwh", "a plus", "e active plus",
@@ -56,6 +56,8 @@ COLUMN_ALIASES = {
         "index import kwh", "index import", "index energie", "index compteur",
         "index kwh", "compteur kwh", "meter index", "cumulative energy",
         "cumulative kwh", "index a plus", "index active energy",
+        "energie active cumulee", "energie cumulee", "cumulee kwh",  # ← ADD THESE
+        "index cumulatif", "energie cumulee kwh",                    # ← ADD THESE
     ],
     "power_kw": [
         "puissance kw", "puissance active", "puissance active totale",
@@ -96,13 +98,20 @@ def trouver_colonne(df: pd.DataFrame, alias_key: str) -> Optional[str]:
     noms_normalises = {col: normaliser_nom_colonne(col) for col in df.columns}
     aliases = [normaliser_nom_colonne(a) for a in COLUMN_ALIASES[alias_key]]
 
+    # Pass 1: exact match
     for col, norm in noms_normalises.items():
         if norm in aliases:
             return col
 
+    # Pass 2: substring match with cumulative-column guard
     for col, norm in noms_normalises.items():
         for alias in aliases:
             if alias and alias in norm:
+                # Never match a cumulative/index column as energy_import_kwh
+                if alias_key == "energy_import_kwh" and any(
+                    x in norm for x in ["cumul", "index", "compteur", "meter"]
+                ):
+                    continue
                 return col
 
     return None
