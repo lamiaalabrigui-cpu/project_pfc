@@ -683,8 +683,7 @@ with tabs[5]:
         i_specs["puissance_nominale_kw"] = c[0].number_input("Puissance nominale onduleur kW a verifier", 0.1, 1000.0, bounded_default(i_specs, "puissance_nominale_kw", selected_pc / 1.2, 0.1, 1000.0), key="inv_pnom")
         i_specs["prix_unitaire"] = c[1].number_input("Prix onduleur HT a saisir", 0.0, 1000000.0, bounded_default(i_specs, "prix_unitaire", 0.0, 0.0, 1000000.0), key="inv_price")
         if i_specs["prix_unitaire"] == 0.0:
-            st.warning("⚠️ Prix onduleur = 0 MAD — saisissez le prix réel pour obtenir un VAN/TRI fiable.")        i_specs["imax"] = c[2].number_input("Imax", 0.1, 1000.0, bounded_default(i_specs, "imax", 30.0, 0.1, 1000.0), key="inv_imax")
-        i_specs["umppt_max"] = c[3].number_input("Umppt max", 1.0, 2000.0, bounded_default(i_specs, "umppt_max", 850.0, 1.0, 2000.0), key="inv_umax")
+            st.warning("⚠️ Prix onduleur = 0 MAD - saisissez le prix reel pour obtenir un VAN/TRI fiable.")        i_specs["umppt_max"] = c[3].number_input("Umppt max", 1.0, 2000.0, bounded_default(i_specs, "umppt_max", 850.0, 1.0, 2000.0), key="inv_umax")
         i_specs["umppt_min"] = st.number_input("Umppt min", 1.0, 2000.0, bounded_default(i_specs, "umppt_min", 200.0, 1.0, 2000.0), key="inv_umin")
         i_specs["tension_ac_v"] = st.number_input("Tension AC V", 120.0, 1000.0, bounded_default(i_specs, "tension_ac_v", 400.0, 120.0, 1000.0), key="inv_vac")
         i_specs["uw"] = st.number_input("Uw tension max supportee", 100.0, 2000.0, bounded_default(i_specs, "uw", 1000.0, 100.0, 2000.0), key="inv_uw")
